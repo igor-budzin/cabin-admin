@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "cross-env NODE_ENV=development node ./src/server/server.babel.js",
-		"prod": "cross-env NODE_PATH=./src cross-env NODE_ENV=production node ./src/server/server.babel.js",
+		"admin:dev": "cross-env NODE_ENV=development node ./src/server/server.babel.js",
+		"admin:prod": "cross-env NODE_PATH=./src cross-env NODE_ENV=production node ./src/server/server.babel.js",
 		"build": "npm run build:client && npm run build:server",
 		"build:server": "cross-env NODE_ENV=production webpack --config ./webpack/server.babel.js",
 		"build:client": "cross-env NODE_ENV=production webpack --config ./webpack/client.babel.js"
@@ -63,7 +63,7 @@
 		"react": "next",
 		"react-dom": "next",
 		"react-dropzone": "^7.0.1",
-		"react-placeholder": "^3.0.1",
+		"react-placeholder": "^3.0.2",
 		"react-rangeslider": "^2.2.0",
 		"react-redux": "^5.0.3",
 		"react-router": "^4.0.0",

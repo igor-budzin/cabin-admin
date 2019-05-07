@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router';
 import cx from 'classnames';
-import { Table } from 'reactstrap';
+import { Table, UncontrolledButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle } from 'reactstrap';
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class UsersContainer extends Component {
@@ -42,6 +42,7 @@ export default class UsersContainer extends Component {
             <th>id</th>
             <th>Name</th>
             <th>email</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -52,6 +53,19 @@ export default class UsersContainer extends Component {
                   <th scope="row">{user.id}</th>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
+                  <td>
+                    <UncontrolledButtonDropdown className="right">
+                      <DropdownToggle caret color="primary" size="sm">
+                        Опції
+                      </DropdownToggle>
+                      <DropdownMenu>
+                        <DropdownItem>Редагувати</DropdownItem>
+                        <DropdownItem className="text-danger">
+                          Видалити
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </UncontrolledButtonDropdown>
+                  </td>
                 </tr>
               )
             })

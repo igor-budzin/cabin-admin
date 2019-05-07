@@ -59,10 +59,11 @@ export default class Routes extends Component {
         >
           <PrivateRoute exact path="/" component={RouteMap.Dashboard} {...this.props} {...this.state} />
           <PrivateRoute exact path="/users" component={RouteMap.Users} {...this.props} {...this.state} />
+          <PrivateRoute exact path="/audio" component={RouteMap.Audio} {...this.props} {...this.state} />
           <PrivateRoute exact path="/collection" component={RouteMap.Collection} {...this.props} {...this.state} />
 {/*          <Route exact path='/login' component={RouteMap.LoginPage} {...this.props} />
-          <Route exact path='/register' component={RouteMap.RegisterPage} {...this.props} />
-          <Route exact component={RouteMap.NotFoundPage} {...this.props} />*/}
+          <Route exact path='/register' component={RouteMap.RegisterPage} {...this.props} />*/}
+          <Route exact component={RouteMap.NotFound} {...this.props} />
         </AnimatedSwitch>
       </RootContainer>
     );

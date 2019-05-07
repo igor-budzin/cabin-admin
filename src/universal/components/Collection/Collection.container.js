@@ -1,12 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { Redirect } from 'react-router';
-import cx from 'classnames';
 import CollectionSection from 'universal/sections/CollectionSection';
 import CollectionAdd from './CollectionAdd';
-import { Table, Button, Form, FormGroup, Label, Input, FormText, Col, Row } from 'reactstrap';
+import {
+  Table, Button, Form, FormGroup, Label, Input, FormText, Col, Row,
+  UncontrolledButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
+} from 'reactstrap';
 
 export default class CollectionContainer extends Component {
   constructor(props, context) {
@@ -88,6 +87,7 @@ const CollectionList = props => {
           <tr>
             <th>title</th>
             <th>subtitle</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -96,6 +96,19 @@ const CollectionList = props => {
               <tr key={collection._id}>
                 <td>{collection.title}</td>
                 <td>{collection.subtitle}</td>
+                <td>
+                  <UncontrolledButtonDropdown className="right">
+                    <DropdownToggle caret color="primary" size="sm">
+                      Опції
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      <DropdownItem>Редагувати</DropdownItem>
+                      <DropdownItem className="text-danger">
+                        Видалити
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </UncontrolledButtonDropdown>
+                </td>
               </tr>
             )
           })}
