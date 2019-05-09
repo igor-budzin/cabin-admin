@@ -62,6 +62,11 @@ export default class Header extends Component {
                           Аудіо
                         </DropdownItem>
                       </Link>
+                      <Link to="/poll">
+                        <DropdownItem>
+                          Голосування
+                        </DropdownItem>
+                      </Link>
                     </DropdownMenu>
                   </UncontrolledDropdown>
 

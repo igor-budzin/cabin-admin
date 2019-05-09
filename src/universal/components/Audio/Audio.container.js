@@ -199,8 +199,6 @@ export default class AudioContainer extends Component {
         </Row>
         
 
-        <div className="divider"></div>
-
       </Fragment>
     );
   }

@@ -47,7 +47,7 @@ export default class CollectionAdd extends Component {
     return (
       <Form>
         <Row form>
-          <Col md={6}>
+          <Col md={12} lg={6}>
             <FormGroup>
               <Label for="title">Заголовок 1</Label>
               <Input onChange={e => this.setState({ title: e.target.value })} type="text" name="title" id="title" placeholder="Краще від" />
@@ -72,7 +72,7 @@ export default class CollectionAdd extends Component {
               </Button>
             </FormGroup>
           </Col>
-          <Col md={6}>
+          <Col md={12} lg={6}>
             <div style={{"width": '480px', "margin": '0 auto'}}>
               <CollectionSection {...this.state} />
             </div>
