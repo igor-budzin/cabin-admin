@@ -120,7 +120,7 @@ const PollList = props => {
   return(
     <Fragment>
       {props.pollArr.length > 0 ?
-      <Table striped className="custom-table">
+      <Table hover striped className="custom-table">
         <thead>
           <tr>
             <th>title</th>

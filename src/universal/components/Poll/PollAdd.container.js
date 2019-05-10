@@ -3,33 +3,55 @@ import { Link } from 'react-router-dom';
 import ReactPlaceholder from 'react-placeholder';
 import {
   Button, Form, FormGroup, Label, Input, FormText, Col, Row,
-  InputGroup, InputGroupAddon, InputGroupButtonDropdown,
-  InputGroupDropdown, Modal, ModalHeader, ModalBody, ModalFooter
+  InputGroup, InputGroupAddon, InputGroupButtonDropdown, Spinner,
+  InputGroupDropdown, Modal, ModalHeader, ModalBody, ModalFooter,
+  Alert
 } from 'reactstrap';
 
 import InfinityLoaderSVG from 'universal/sections/InfinityLoaderSVG';
 import MusicItem from 'universal/sections/MusicItem';
+
+const defaultState = {
+  title: '',
+  answers: [
+    { title: '', audioId: '' },
+    { title: '', audioId: '' }
+  ],
+  publish: false,
+  error: '',
+  sendingForm: false,
+
+  audioArr: [],
+  audioListReady: false,
+  modal: false,
+  limitPerPage: 15,
+  page: 0,
+  hasNextPage: false,
+  count: 0,
+  indexForAudio: ''
+}
 
 export default class PollAdd extends Component {
   constructor(props, context) {
     super(props, context);
 
     this.state = {
-      title: '',
+      ...defaultState,
       answers: [
-        { title: '', audioId: '', audio: '' },
-        { title: '', audioId: '', audio: '' }
-      ],
-      error: '',
-      audioArr: [],
-      audioListReady: false,
-      modal: false,
-      limitPerPage: 15,
-      page: 0,
-      hasNextPage: false,
-      count: 0,
-      indexForAudio: ''
-    }
+        { title: '', audioId: '' },
+        { title: '', audioId: '' }
+      ]
+    };
+  }
+
+  resetStateWithUpdates = (stateUpdates = {}) => {
+    this.setState({
+      ...defaultState,
+      answers: [
+        { title: '', audioId: '' },
+        { title: '', audioId: '' }
+      ]
+    })
   }
 
   loadAudioList(page) {
@@ -43,7 +65,7 @@ export default class PollAdd extends Component {
      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
      .join('&');
 
-    let promise = fetch(`http://localhost:8080/api/audio?${query}`, {
+    const promise = fetch(`http://localhost:8080/api/audio?${query}`, {
       method: 'get'
     });
 
@@ -54,10 +76,10 @@ export default class PollAdd extends Component {
         }
       })
       .then(data => this.setState({
+        page,
         audioArr: data.music,
         hasNextPage: data.hasNextPage,
         count: data.count,
-        page,
         audioListReady: true
       }))
       .catch(err => {
@@ -73,8 +95,7 @@ export default class PollAdd extends Component {
     const answers = this.state.answers;
     answers.push({
       title: '',
-      audioId: '',
-      audio: ''
+      audioId: ''
     });
 
     this.setState({ answers });
@@ -82,7 +103,6 @@ export default class PollAdd extends Component {
 
   deleteAnswerItem = index => {
     const answers = this.state.answers;
-
     this.setState({ answers: answers.filter((el, n) => n !== index) });
   }
 
@@ -97,7 +117,7 @@ export default class PollAdd extends Component {
     event.preventDefault();
     const answers = this.state.answers;
     answers[index].audioId = '';
-    answers[index].audio = '';
+    answers[index].title = '';
     this.setState({ answers });
   }
 
@@ -108,12 +128,52 @@ export default class PollAdd extends Component {
   onChoseAudio = audio => {
     const answers = this.state.answers;
     answers[this.state.indexForAudio].audioId = audio._id;
-    answers[this.state.indexForAudio].audio = `${audio.artists} - ${audio.title}`;
+    answers[this.state.indexForAudio].title = `${audio.artists} - ${audio.title}`;
     this.setState({ answers, modal: false });
   }
 
+  handleCreatePoll = () => {
+    this.setState({ sendingForm: true });
+
+    const reqBody = {
+      title: this.state.title,
+      publish: this.state.publish,
+      answer: this.state.answers.map((answer, index) => {
+        answer.id = index;
+        return answer;
+      })
+    }
+
+    const promise = fetch(`http://localhost:8080/api/poll`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(reqBody)
+    });
+
+    promise
+      .then(response => {
+        if(response.ok) {
+          return response.json();
+        }
+      })
+      .then(data => this.resetStateWithUpdates())
+      .catch(err => console.log(err));
+
+    
+  }
+
   render() {
-    const { title, answers, audioArr, audioListReady } = this.state;
+    const {
+      title,
+      answers,
+      audioArr,
+      audioListReady,
+      sendingForm,
+      publish
+    } = this.state;
 
     return (
       <Fragment>
@@ -133,18 +193,17 @@ export default class PollAdd extends Component {
                 <FormGroup>
                   <Label for="title">Заголовок</Label>
                   <Input
+                    value={title}
                     onChange={e => this.setState({ title: e.target.value })}
                     type="text"
                     name="title"
                     id="title"
                     tabIndex="1"
+                    disabled={sendingForm}
                   />
                 </FormGroup>
 
-                <div className="divider"></div>
-
                 <legend>Варіанти відповіді</legend>
-
 
                 {answers.map((answer, index) => {
                   return(
@@ -154,25 +213,33 @@ export default class PollAdd extends Component {
                           <InputGroupAddon addonType="prepend">{index.toString()}</InputGroupAddon>
                           <Input
                             value={answer.title}
+                            title={answer.title}
                             onChange={e => {
                               answers[index].title = e.target.value;
                               this.setState({ answers });
                             }}
                             type="text"
                             tabIndex={index + 2}
+                            disabled={sendingForm || answers[index].audioId}
                           />
                           <InputGroupAddon addonType="append">
                             {answer.audioId ?
-                              <Button color="danger" onClick={e => this.onDeleteAudio(e, index)}>Аудіо</Button>:
-                              <Button color="success" onClick={e => this.onAddAudio(e, index)}>Аудіо</Button>
+                              <Button color="danger" disabled={sendingForm} onClick={e => this.onDeleteAudio(e, index)}>Аудіо</Button>:
+                              <Button color="success" disabled={sendingForm} onClick={e => this.onAddAudio(e, index)}>Аудіо</Button>
                             }
                           </InputGroupAddon>
                         </InputGroup>
-                        {answer.audio && <FormText color="muted">{answer.audio}</FormText>}
                       </Col>
                       {index > 1 && (
                         <Col lg={2}>
-                          <Button color="danger" block onClick={() => this.deleteAnswerItem(index)}>X</Button>
+                          <Button
+                            block
+                            color="danger"
+                            onClick={() => this.deleteAnswerItem(index)}
+                            disabled={sendingForm}
+                          >
+                            X
+                          </Button>
                         </Col>
                       )}
                     </FormGroup>
@@ -181,7 +248,7 @@ export default class PollAdd extends Component {
 
                 {answers.length < 5 && (
                   <FormGroup>
-                    <Button color="success" onClick={this.addAnswerItem}>Додати ще</Button>
+                    <Button color="success" disabled={sendingForm} onClick={this.addAnswerItem}>Додати ще</Button>
                   </FormGroup>
                 )}
 
@@ -190,17 +257,29 @@ export default class PollAdd extends Component {
                 <FormGroup>
                   <Button
                     color="primary"
-                    onClick={this.onCreatePoll}
+                    onClick={this.handleCreatePoll}
+                    disabled={sendingForm}
                   >
+                    {sendingForm && <span><Spinner className="spinner-offset" size="sm" color="light" /></span>}
                     Створити голосування
                   </Button>
+
+                  <div style={{"marginTop": "9px", "display": "inline-block", "float": "right"}}>
+                    <Label check>
+                      <Input
+                        type="checkbox"
+                        checked={publish}
+                        disabled={sendingForm}
+                        onChange={() => this.setState({ publish: !publish })}
+                      />
+                      Опублікувати
+                    </Label>
+                  </div>
                 </FormGroup>
               </Col>
-
             </Row>
           </Form>
         </div>
-
 
         <Modal
           centered
@@ -236,10 +315,6 @@ export default class PollAdd extends Component {
             </ReactPlaceholder>
 
           </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={this.toggle}>Do Something</Button>{' '}
-            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-          </ModalFooter>
         </Modal>
       </Fragment>
     );

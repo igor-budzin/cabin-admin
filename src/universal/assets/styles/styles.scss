@@ -28,6 +28,11 @@ body {
   &:focus {
     box-shadow: none !important;
   }
+
+  span .spinner-offset {
+    margin-bottom: 3px;
+    margin-right: 10px;
+  }
 }
 .empty-message {
   text-align: center;
