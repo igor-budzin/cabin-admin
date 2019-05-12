@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import ReactPlaceholder from 'react-placeholder';
 import {
   Table, Button, Form, FormGroup, Label, Input, FormText, Col, Row,
-  UncontrolledButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
+  UncontrolledButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle,
+  Modal, ModalHeader, ModalBody, ModalFooter
 } from 'reactstrap';
 
 import InfinityLoaderSVG from 'universal/sections/InfinityLoaderSVG';
@@ -20,7 +21,10 @@ export default class DashboardContainer extends Component {
       limitPerPage: 30,
       page: 0,
       count: 0,
-      error: false
+      error: false,
+      showModalDelete: false,
+
+      
     }
   }
 
@@ -65,9 +69,11 @@ export default class DashboardContainer extends Component {
       });
   }
 
-  handleCreatePoll = () => {
-
+  onDeletePoll = alias => {
+    
   }
+
+  toggleModalDelete = () => this.setState({ modal: !this.state.modal })
 
   render() {
     const {
@@ -107,10 +113,22 @@ export default class DashboardContainer extends Component {
             <PollList
               pollArr={pollArr}
               onChosepoll={poll => this.loadpoll(poll)}
+              onDeletePoll={this.onDeletePoll}
             />
           </ReactPlaceholder>
           {count > limitPerPage && <Pagination>{pageItems}</Pagination>}
         </div>
+
+        <Modal
+          centered
+          isOpen={this.state.showModalDelete}
+          toggle={this.toggleModalDelete}
+        >
+          <ModalHeader>Видалити голосування</ModalHeader>
+          <ModalBody>
+
+          </ModalBody>
+        </Modal>
       </Fragment>
     );
   }
@@ -139,7 +157,7 @@ const PollList = props => {
                     </DropdownToggle>
                     <DropdownMenu>
                       <DropdownItem>Редагувати</DropdownItem>
-                      <DropdownItem className="text-danger">
+                      <DropdownItem className="text-danger" onClick={props.onDeletePoll}>
                         Видалити
                       </DropdownItem>
                     </DropdownMenu>

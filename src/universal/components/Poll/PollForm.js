@@ -1,5 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
+import ReactPlaceholder from 'react-placeholder';
+import {
+  Button, Form, FormGroup, Label, Input, FormText, Col, Row,
+  InputGroup, InputGroupAddon, InputGroupButtonDropdown, Spinner,
+  InputGroupDropdown, Modal, ModalHeader, ModalBody, ModalFooter,
+  Alert
+} from 'reactstrap';
+
+import InfinityLoaderSVG from 'universal/sections/InfinityLoaderSVG';
+import MusicItem from 'universal/sections/MusicItem';
 
 const defaultState = {
   title: '',
@@ -111,7 +121,9 @@ export default class PollAdd extends Component {
     this.setState({ answers });
   }
 
-  toggleModal = () => this.setState({ modal: !this.state.modal })
+  toggleModal = () => {
+    this.setState({ modal: !this.state.modal })
+  }
 
   onChoseAudio = audio => {
     const answers = this.state.answers;
@@ -272,6 +284,7 @@ export default class PollAdd extends Component {
           centered
           isOpen={this.state.modal}
           toggle={this.toggleModal}
+          className={this.props.className}
         >
           <ModalHeader>Виберіть аудіозапис</ModalHeader>
           <ModalBody>

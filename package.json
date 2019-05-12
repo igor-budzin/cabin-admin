@@ -61,6 +61,7 @@
 		"lodash.isequal": "^4.5.0",
 		"prop-types": "^15.6.2",
 		"react": "next",
+		"react-calendar": "^2.18.1",
 		"react-dom": "next",
 		"react-dropzone": "^7.0.1",
 		"react-placeholder": "^3.0.2",
