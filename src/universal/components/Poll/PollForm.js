@@ -19,7 +19,6 @@ const defaultState = {
   ],
   publish: false,
   error: '',
-  sendingForm: false,
 
   audioArr: [],
   audioListReady: false,
@@ -132,59 +131,28 @@ export default class PollAdd extends Component {
     this.setState({ answers, modal: false });
   }
 
-  handleCreatePoll = () => {
-    this.setState({ sendingForm: true });
-
-    const reqBody = {
+  onCreatePoll = () => {
+    this.props.handleCreatePoll({
       title: this.state.title,
-      publish: this.state.publish,
-      answer: this.state.answers.map((answer, index) => {
-        answer.id = index;
-        return answer;
-      })
-    }
-
-    const promise = fetch(`http://localhost:8080/api/poll`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(reqBody)
+      answers: this.state.answers,
+      publish: this.state.publish
     });
 
-    promise
-      .then(response => {
-        if(response.ok) {
-          return response.json();
-        }
-      })
-      .then(data => this.resetStateWithUpdates())
-      .catch(err => console.log(err));
+    this.resetStateWithUpdates();
   }
 
   render() {
+    const { sendingForm } = this.props;
     const {
       title,
       answers,
       audioArr,
       audioListReady,
-      sendingForm,
       publish
     } = this.state;
 
     return (
       <Fragment>
-        <div className="margin-wrapper">
-          <h2>Додати голосування</h2>
-          <div className="right">
-            <Link to="/poll">Всі голосування</Link>
-          </div>
-        </div>
-
-        <div className="divider"></div>
-
-        <div className="margin-wrapper">
           <Form>
             <Row form>
               <Col lg={8}>
@@ -255,7 +223,7 @@ export default class PollAdd extends Component {
                 <FormGroup>
                   <Button
                     color="primary"
-                    onClick={this.handleCreatePoll}
+                    onClick={this.onCreatePoll}
                     disabled={sendingForm}
                   >
                     {sendingForm && <span><Spinner className="spinner-offset" size="sm" color="light" /></span>}
@@ -278,13 +246,12 @@ export default class PollAdd extends Component {
               </Col>
             </Row>
           </Form>
-        </div>
+
 
         <Modal
           centered
           isOpen={this.state.modal}
           toggle={this.toggleModal}
-          className={this.props.className}
         >
           <ModalHeader>Виберіть аудіозапис</ModalHeader>
           <ModalBody>
