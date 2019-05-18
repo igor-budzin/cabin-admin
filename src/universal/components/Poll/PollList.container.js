@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import ReactPlaceholder from 'react-placeholder';
 import {
-  Table, Button, Form, FormGroup, Label, Input, FormText, Col, Row,
+  Table, Button, Col, Row, Spinner,
   UncontrolledButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle,
   Modal, ModalHeader, ModalBody, ModalFooter
 } from 'reactstrap';
@@ -23,8 +23,9 @@ export default class DashboardContainer extends Component {
       count: 0,
       error: false,
       showModalDelete: false,
-
-      
+      pollForDelete: false,
+      deleteLoading: false,
+      errorDelete: false
     }
   }
 
@@ -69,11 +70,42 @@ export default class DashboardContainer extends Component {
       });
   }
 
-  onDeletePoll = alias => {
-    
+  onDeletePoll = poll => {
+    this.setState({ pollForDelete: poll });
+    this.toggleModalDelete();
   }
 
-  toggleModalDelete = () => this.setState({ modal: !this.state.modal })
+  toggleModalDelete = () => this.setState({ showModalDelete: !this.state.showModalDelete })
+
+  handleDelete = () => {
+    this.setState({ deleteLoading: true });
+
+    let promise = fetch(`http://localhost:8080/api/poll/${this.state.pollForDelete.alias}`, {
+      method: 'delete'
+    });
+
+    promise
+      .then(response => {
+        if(response.ok) {
+          return response.json();
+        }
+      })
+      .then(data => {
+        this.setState({
+          showModalDelete: false,
+          deleteLoading: false,
+          pollForDelete: false
+        });
+      })
+      .catch(err => {
+        this.setState({
+          showModalDelete: false,
+          deleteLoading: false,
+          pollForDelete: false
+        });
+        console.log(err)
+      });
+  }
 
   render() {
     const {
@@ -84,7 +116,10 @@ export default class DashboardContainer extends Component {
       limitPerPage,
       pollListReady,
       pollData,
-      error
+      error,
+      pollForDelete,
+      deleteLoading,
+      showModalDelete
     } = this.state;
 
     return (
@@ -121,13 +156,28 @@ export default class DashboardContainer extends Component {
 
         <Modal
           centered
+          backdrop={true}
           isOpen={this.state.showModalDelete}
           toggle={this.toggleModalDelete}
+          onExit={() => this.setState({ pollForDelete: false })}
         >
           <ModalHeader>Видалити голосування</ModalHeader>
           <ModalBody>
-
+            Ви впевнені що хочете видалити голосування <b>{pollForDelete.title}</b>?
           </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onClick={this.handleDelete}>
+              {deleteLoading && <span><Spinner className="spinner-offset" size="sm" color="light" /></span>}
+              Так, видалити
+            </Button>
+            <Button
+              color="secondary"
+              onClick={this.toggleModalDelete}
+              disabled={deleteLoading}
+            >
+              Скасувати
+            </Button>
+          </ModalFooter>
         </Modal>
       </Fragment>
     );
@@ -157,7 +207,7 @@ const PollList = props => {
                     </DropdownToggle>
                     <DropdownMenu>
                       <DropdownItem>Редагувати</DropdownItem>
-                      <DropdownItem className="text-danger" onClick={props.onDeletePoll}>
+                      <DropdownItem className="text-danger" onClick={() => props.onDeletePoll(poll)}>
                         Видалити
                       </DropdownItem>
                     </DropdownMenu>
